@@ -192,6 +192,7 @@ resource "aws_instance" "master" {
   tags = {
     Name              = "kubernetes_master"
     KubernetesCluster = "aws"
+    Owner             = "${var.instance_owner}"
   }
 }
 
@@ -220,5 +221,6 @@ resource "aws_instance" "worker" {
   tags = {
     Name              = "kubernetes_worker"
     KubernetesCluster = "aws"
+    Owner             = "${var.instance_owner}"
   }
 }

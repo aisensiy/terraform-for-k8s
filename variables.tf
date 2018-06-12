@@ -21,3 +21,9 @@ DESCRIPTION
 variable "key_name" {
   description = "Desired name of AWS key pair"
 }
+
+variable "instance_owner" {
+  description = <<DESCRIPTION
+As a tag for instance for better filter
+DESCRIPTION
+}
