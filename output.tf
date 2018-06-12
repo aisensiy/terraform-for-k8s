@@ -1,5 +1,5 @@
 output "master" {
-  value = "${aws_instance.master.public_ip}"
+  value = "${aws_eip.master_ip.public_ip}"
 }
 
 output "worker" {
