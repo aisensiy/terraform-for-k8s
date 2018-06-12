@@ -194,6 +194,19 @@ resource "aws_instance" "master" {
     KubernetesCluster = "aws"
     Owner             = "${var.instance_owner}"
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install python -y",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "${var.remote_username}"
+      private_key = "${file(var.private_key_path)}"
+    }
+  }
 }
 
 resource "aws_eip" "master_ip" {
@@ -222,5 +235,18 @@ resource "aws_instance" "worker" {
     Name              = "kubernetes_worker"
     KubernetesCluster = "aws"
     Owner             = "${var.instance_owner}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install python -y",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "${var.remote_username}"
+      private_key = "${file(var.private_key_path)}"
+    }
   }
 }
