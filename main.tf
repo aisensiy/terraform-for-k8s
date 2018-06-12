@@ -194,3 +194,31 @@ resource "aws_instance" "master" {
     KubernetesCluster = "aws"
   }
 }
+
+resource "aws_eip" "master_ip" {
+  instance = "${aws_instance.master.id}"
+  vpc      = true
+
+  tags = {
+    Name = "kubernetes_master_ip"
+  }
+}
+
+resource "aws_instance" "worker" {
+  count         = 2
+  ami           = "${var.ami}"
+  instance_type = "t2.medium"
+
+  subnet_id                   = "${aws_subnet.kubernetes.id}"
+  associate_public_ip_address = true
+
+  vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
+  key_name               = "${var.key_name}"
+
+  iam_instance_profile = "${aws_iam_instance_profile.kubernetes_worker.id}"
+
+  tags = {
+    Name              = "kubernetes_worker"
+    KubernetesCluster = "aws"
+  }
+}
