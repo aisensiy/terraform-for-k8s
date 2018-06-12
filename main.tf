@@ -197,8 +197,7 @@ resource "aws_instance" "master" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt update",
-      "sudo apt install python -y",
+      "sudo ln -s /usr/bin/python3 /usr/bin/python",
     ]
 
     connection {
@@ -239,8 +238,7 @@ resource "aws_instance" "worker" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt update",
-      "sudo apt install python -y",
+      "sudo ln -s /usr/bin/python3 /usr/bin/python",
     ]
 
     connection {
