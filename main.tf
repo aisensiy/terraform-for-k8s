@@ -203,6 +203,15 @@ resource "aws_instance" "master" {
 
   iam_instance_profile = "${aws_iam_instance_profile.kubernetes_master.id}"
 
+  root_block_device {
+    volume_size = 40
+  }
+
+  ebs_block_device {
+    device_name = "/dev/xvdf"
+    volume_size = 100
+  }
+
   tags = {
     Name              = "kubernetes_master"
     KubernetesCluster = "aws"
@@ -243,6 +252,15 @@ resource "aws_instance" "worker" {
   key_name               = "${var.key_name}"
 
   iam_instance_profile = "${aws_iam_instance_profile.kubernetes_worker.id}"
+
+  root_block_device {
+    volume_size = 40
+  }
+
+  ebs_block_device {
+    device_name = "/dev/xvdf"
+    volume_size = 100
+  }
 
   tags = {
     Name              = "kubernetes_worker"
