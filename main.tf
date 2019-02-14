@@ -9,7 +9,7 @@ resource "aws_vpc" "kubernetes" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "kubernetes"
+    Name = "kubernetes-${terraform.workspace}"
   }
 }
 
@@ -19,7 +19,7 @@ resource "aws_subnet" "kubernetes" {
   availability_zone = "cn-north-1a"
 
   tags {
-    Name = "kubernetes"
+    Name = "kubernetes-${terraform.workspace}"
   }
 }
 
@@ -27,7 +27,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.kubernetes.id}"
 
   tags {
-    Name = "kubernetes"
+    Name = "kubernetes-${terraform.workspace}"
   }
 }
 
@@ -45,10 +45,12 @@ resource "aws_route_table_association" "kubernetes" {
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
 
+/*
 resource "aws_key_pair" "default_keypair" {
   key_name   = "${var.key_name}"
   public_key = "${file(var.public_key_path)}"
 }
+*/
 
 resource "aws_security_group" "kubernetes" {
   name   = "kubernetes"
@@ -76,6 +78,20 @@ resource "aws_security_group" "kubernetes" {
   }
 
   ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8443
+    to_port     = 8443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 6443
     to_port     = 6443
     protocol    = "tcp"
@@ -97,10 +113,11 @@ resource "aws_security_group" "kubernetes" {
   }
 
   tags {
-    Name = "kubernetes"
+    Name = "kubernetes-${terraform.workspace}"
   }
 }
 
+/*
 resource "aws_iam_role" "kubernetes_master" {
   name = "kubernetes-master"
 
@@ -141,12 +158,14 @@ resource "aws_iam_role_policy" "kubernetes_master" {
 }
 EOF
 }
+*/
 
-resource "aws_iam_instance_profile" "kubernetes_master" {
-  name = "kubernetes_master"
-  role = "${aws_iam_role.kubernetes_master.name}"
-}
+# resource "aws_iam_instance_profile" "kubernetes_master" {
+#   name = "kubernetes_master"
+#   role = "kubernetes_master"
+# }
 
+/*
 resource "aws_iam_role" "kubernetes_worker" {
   name = "kubernetes_worker"
 
@@ -184,11 +203,12 @@ resource "aws_iam_role_policy" "kubernetes_worker" {
 }
 EOF
 }
+*/
 
-resource "aws_iam_instance_profile" "kubernetes_worker" {
-  name = "kubernetes_worker"
-  role = "${aws_iam_role.kubernetes_worker.name}"
-}
+# resource "aws_iam_instance_profile" "kubernetes_worker" {
+#   name = "kubernetes_worker"
+#   role = "kubernetes_worker"
+# }
 
 resource "aws_instance" "master" {
   count         = 1
@@ -201,7 +221,7 @@ resource "aws_instance" "master" {
   vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
   key_name               = "${var.key_name}"
 
-  iam_instance_profile = "${aws_iam_instance_profile.kubernetes_master.id}"
+  iam_instance_profile = "kubernetes_master"
 
   root_block_device {
     volume_size = 40
@@ -213,7 +233,7 @@ resource "aws_instance" "master" {
   }
 
   tags = {
-    Name              = "kubernetes_master"
+    Name              = "kubernetes_master-${terraform.workspace}"
     KubernetesCluster = "aws"
     Owner             = "${var.instance_owner}"
   }
@@ -251,7 +271,7 @@ resource "aws_instance" "worker" {
   vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
   key_name               = "${var.key_name}"
 
-  iam_instance_profile = "${aws_iam_instance_profile.kubernetes_worker.id}"
+  iam_instance_profile = "kubernetes_worker"
 
   root_block_device {
     volume_size = 40
@@ -263,7 +283,7 @@ resource "aws_instance" "worker" {
   }
 
   tags = {
-    Name              = "kubernetes_worker"
+    Name              = "kubernetes_worker-${terraform.workspace}"
     KubernetesCluster = "aws"
     Owner             = "${var.instance_owner}"
   }
